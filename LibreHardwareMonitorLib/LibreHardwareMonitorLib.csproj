@@ -21,7 +21,7 @@
     <PackageIcon>packageicon.png</PackageIcon>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);CA1416</NoWarn>
+    <NoWarn>$(NoWarn);CA1416;NU1510</NoWarn>
   </PropertyGroup>
 
   <!-- AOT/Trimming compatibility for modern .NET -->
