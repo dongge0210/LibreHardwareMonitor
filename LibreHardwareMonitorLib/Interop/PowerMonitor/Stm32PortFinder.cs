@@ -11,6 +11,7 @@ using System.Text;
 using Windows.Win32;
 using Windows.Win32.Devices.DeviceAndDriverInstallation;
 using Windows.Win32.Foundation;
+using static LibreHardwareMonitor.Interop.SetupApi;
 
 namespace LibreHardwareMonitor.Interop.PowerMonitor;
 
@@ -53,7 +54,7 @@ public static class Stm32PortFinder
 
 #if WINDOWS
         //Setup
-        SetupDiDestroyDeviceInfoListSafeHandle devInfo = PInvoke.SetupDiGetClassDevs(PInvoke.GUID_DEVCLASS_PORTS, null, HWND.Null, SETUP_DI_GET_CLASS_DEVS_FLAGS.DIGCF_PRESENT);
+        SetupDiDestroyDeviceInfoListSafeHandle devInfo = SetupDiGetClassDevs(PInvoke.GUID_DEVCLASS_PORTS, null, HWND.Null, SETUP_DI_GET_CLASS_DEVS_FLAGS.DIGCF_PRESENT);
 
         //Check handle
         if (devInfo.IsInvalid)
@@ -66,7 +67,7 @@ public static class Stm32PortFinder
             SP_DEVINFO_DATA devInfoData = new() { cbSize = (uint)Marshal.SizeOf<SP_DEVINFO_DATA>() };
 
             uint index = 0;
-            while (PInvoke.SetupDiEnumDeviceInfo(devInfo, index++, ref devInfoData))
+            while (SetupDiEnumDeviceInfo(devInfo, index++, ref devInfoData))
             {
                 //Get hardware ID
                 string hwId = GetProperty(devInfo, SETUP_DI_REGISTRY_PROPERTY.SPDRP_HARDWAREID, devInfoData);
@@ -107,7 +108,7 @@ public static class Stm32PortFinder
         {
             byte[] buffer = new byte[BufferSize];
 
-            if (PInvoke.SetupDiGetDeviceRegistryProperty(hDevInfo, devInfoData, property, buffer))
+            if (SetupDiGetDeviceRegistryProperty(hDevInfo, devInfoData, property, buffer))
             {
                 //Take first string only, no need for the rest
                 return NormalizeString(Encoding.Unicode.GetString(buffer));
