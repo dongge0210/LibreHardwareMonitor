@@ -76,8 +76,7 @@ internal class BatteryGroup : IGroup
                         {
                             string devicePath;
 
-                            fixed (void* pDevicePath = &pDetailData->DevicePath.e0)
-                                devicePath = new string((char*)pDevicePath);
+                            devicePath = new string((char*)&pDetailData->DevicePath);
 
                             SafeFileHandle battery = PInvoke.CreateFile(devicePath, (uint)FileAccess.ReadWrite, FILE_SHARE_MODE.FILE_SHARE_READ | FILE_SHARE_MODE.FILE_SHARE_WRITE, null, FILE_CREATION_DISPOSITION.OPEN_EXISTING, FILE_FLAGS_AND_ATTRIBUTES.FILE_ATTRIBUTE_NORMAL, null);
                             if (!battery.IsInvalid)
