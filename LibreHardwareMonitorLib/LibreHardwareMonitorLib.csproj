@@ -97,6 +97,7 @@
     <None Include="Resources\packageicon.png" PackagePath="">
       <Pack>True</Pack>
     </None>
+    <AdditionalFiles Include="NativeMethods.txt" />
   </ItemGroup>
 
   <Import Project="main.nuget.target" Condition="'$(PackMainNuget)' == 'true'" />

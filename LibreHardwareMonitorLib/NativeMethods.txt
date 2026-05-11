@@ -1,3 +1,4 @@
+LibreHardwareMonitor
 CM_Get_Device_Interface_List_Size
 CM_Get_Device_Interface_List
 GUID_DISPLAY_DEVICE_ARRIVAL
