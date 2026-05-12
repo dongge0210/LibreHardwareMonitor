@@ -13,7 +13,6 @@ using Windows.Win32.Devices.DeviceAndDriverInstallation;
 using Windows.Win32.Foundation;
 using Windows.Win32.Storage.FileSystem;
 using Windows.Win32.System.Power;
-using static LibreHardwareMonitor.Interop.SetupApi;
 using Microsoft.Win32.SafeHandles;
 
 namespace LibreHardwareMonitor.Hardware.Battery;
@@ -29,7 +28,7 @@ internal class BatteryGroup : IGroup
             return;
 
 #if WINDOWS
-        SetupDiDestroyDeviceInfoListSafeHandle hdev = SetupDiGetClassDevs(PInvoke.GUID_DEVICE_BATTERY,
+        SetupDiDestroyDeviceInfoListSafeHandle hdev = PInvoke.SetupDiGetClassDevs(PInvoke.GUID_DEVICE_BATTERY,
                                                                                   null,
                                                                                   HWND.Null,
                                                                                   SETUP_DI_GET_CLASS_DEVS_FLAGS.DIGCF_PRESENT | SETUP_DI_GET_CLASS_DEVS_FLAGS.DIGCF_DEVICEINTERFACE);
@@ -41,7 +40,7 @@ internal class BatteryGroup : IGroup
                 SP_DEVICE_INTERFACE_DATA data = default;
                 data.cbSize = (uint)sizeof(SP_DEVICE_INTERFACE_DATA);
 
-                if (!SetupDiEnumDeviceInterfaces(hdev,
+                if (!PInvoke.SetupDiEnumDeviceInterfaces(hdev,
                                                          null,
                                                          PInvoke.GUID_DEVICE_BATTERY,
                                                          i,
@@ -54,7 +53,7 @@ internal class BatteryGroup : IGroup
                 {
                     uint cbRequired = 0;
 
-                    SetupDiGetDeviceInterfaceDetail((HDEVINFO)hdev.DangerousGetHandle(),
+                    PInvoke.SetupDiGetDeviceInterfaceDetail((HDEVINFO)hdev.DangerousGetHandle(),
                                                             &data,
                                                             null,
                                                             0,
@@ -67,7 +66,7 @@ internal class BatteryGroup : IGroup
                         SP_DEVICE_INTERFACE_DETAIL_DATA_W* pDetailData = (SP_DEVICE_INTERFACE_DETAIL_DATA_W*)buffer;
                         pDetailData->cbSize = (uint)sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA_W);
 
-                        if (SetupDiGetDeviceInterfaceDetail((HDEVINFO)hdev.DangerousGetHandle(),
+                        if (PInvoke.SetupDiGetDeviceInterfaceDetail((HDEVINFO)hdev.DangerousGetHandle(),
                                                                     &data,
                                                                     pDetailData,
                                                                     cbRequired,
