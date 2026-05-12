@@ -44,7 +44,7 @@ namespace LibreHardwareMonitor.Interop
             uint* RequiredSize);
 
         [DllImport("SETUPAPI.dll", SetLastError = true, ExactSpelling = true, CharSet = CharSet.Unicode)]
-        public static extern HDEVINFO SetupDiGetClassDevs(
+        public static extern unsafe HDEVINFO SetupDiGetClassDevs(
             Guid* ClassGuid,
             [Optional] char* Enumerator,
             HWND hwndParent,
