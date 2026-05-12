@@ -1,11 +1,13 @@
 // Manual definitions for Windows Setup API types and P/Invoke methods.
 // CsWin32 v0.3.275 may fail to generate these on certain SDK/CI configurations.
-// If CsWin32-generated types appear, the 'internal' visibility may cause
-// duplicate-definition errors — remove this file at that point.
+// GUIDs (GUID_DEVCLASS_PORTS, GUID_DEVICE_BATTERY) are NOT defined here —
+// CsWin32 generates them. Remove this file once CsWin32 generates all types.
 
 using System;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
+
+#nullable enable
 
 namespace Windows.Win32.Devices.DeviceAndDriverInstallation
 {
@@ -16,6 +18,16 @@ namespace Windows.Win32.Devices.DeviceAndDriverInstallation
         public Guid ClassGuid;
         public uint DevInst;
         public nint Reserved;
+    }
+
+    [Flags]
+    internal enum SETUP_DI_GET_CLASS_DEVS_FLAGS : uint
+    {
+        DIGCF_DEFAULT = 0x00000001,
+        DIGCF_PRESENT = 0x00000002,
+        DIGCF_ALLCLASSES = 0x00000004,
+        DIGCF_PROFILE = 0x00000008,
+        DIGCF_DEVICEINTERFACE = 0x00000010,
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -31,22 +43,9 @@ namespace Windows.Win32.Devices.DeviceAndDriverInstallation
     internal unsafe struct SP_DEVICE_INTERFACE_DETAIL_DATA_W
     {
         public uint cbSize;
-        public fixed char DevicePath[1]; // variable-length
+        public fixed char DevicePath[1];
     }
 
-    [Flags]
-    internal enum SETUP_DI_GET_CLASS_DEVS_FLAGS : uint
-    {
-        DIGCF_DEFAULT = 0x00000001,
-        DIGCF_PRESENT = 0x00000002,
-        DIGCF_ALLCLASSES = 0x00000004,
-        DIGCF_PROFILE = 0x00000008,
-        DIGCF_DEVICEINTERFACE = 0x00000010,
-    }
-}
-
-namespace Windows.Win32.Devices.DeviceAndDriverInstallation
-{
     internal enum SETUP_DI_REGISTRY_PROPERTY : uint { }
 }
 
@@ -66,7 +65,7 @@ namespace Windows.Win32.Foundation
         public SetupDiDestroyDeviceInfoListSafeHandle() : base(true) { }
         protected override bool ReleaseHandle()
         {
-            return SetupDiDestroyDeviceInfoList(handle);
+            return PInvoke.SetupDiDestroyDeviceInfoList(handle);
         }
 
         [DllImport("setupapi.dll", SetLastError = true, ExactSpelling = true)]
@@ -78,23 +77,18 @@ namespace Windows.Win32
 {
     internal static partial class PInvoke
     {
-        // GUIDs
-        internal static readonly Guid GUID_DEVCLASS_PORTS = new(0x4d36e978, 0xe325, 0x11ce, 0xbf, 0xc1, 0x08, 0x00, 0x2b, 0xe1, 0x03, 0x18);
-        internal static readonly Guid GUID_DEVICE_BATTERY = new(0x72631E54, 0x78A4, 0x11D0, 0xBC, 0xF7, 0x00, 0xAA, 0x00, 0xB7, 0xB3, 0x2A);
-
-        // Setup API P/Invokes
         [DllImport("setupapi.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         internal static extern Foundation.SetupDiDestroyDeviceInfoListSafeHandle SetupDiGetClassDevs(
             in Guid ClassGuid,
-            string? Enumerator,
+            [MarshalAs(UnmanagedType.LPWStr)] string? Enumerator,
             Foundation.HWND hwndParent,
             Devices.DeviceAndDriverInstallation.SETUP_DI_GET_CLASS_DEVS_FLAGS Flags);
 
         [DllImport("setupapi.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        internal static extern bool SetupDiEnumDeviceInterfaces(
+        internal static extern unsafe bool SetupDiEnumDeviceInterfaces(
             Foundation.SetupDiDestroyDeviceInfoListSafeHandle DeviceInfoSet,
-            void* DeviceInfoData, // optional
+            void* DeviceInfoData,
             in Guid InterfaceClassGuid,
             uint MemberIndex,
             ref Devices.DeviceAndDriverInstallation.SP_DEVICE_INTERFACE_DATA DeviceInterfaceData);
@@ -122,7 +116,7 @@ namespace Windows.Win32
             Foundation.SetupDiDestroyDeviceInfoListSafeHandle DeviceInfoSet,
             in Devices.DeviceAndDriverInstallation.SP_DEVINFO_DATA DeviceInfoData,
             Devices.DeviceAndDriverInstallation.SETUP_DI_REGISTRY_PROPERTY Property,
-            uint* PropertyRegDataType, // optional
+            uint* PropertyRegDataType,
             byte* PropertyBuffer,
             uint PropertyBufferSize,
             uint* RequiredSize);
