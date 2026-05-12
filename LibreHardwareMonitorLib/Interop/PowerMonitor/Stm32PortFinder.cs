@@ -110,8 +110,8 @@ public static class Stm32PortFinder
             fixed (byte* pBuffer = buffer)
             {
                 if (PInvoke.SetupDiGetDeviceRegistryProperty(
-                        (Windows.Win32.Devices.DeviceAndDriverInstallation.HDEVINFO)hDevInfo.DangerousGetHandle(),
-                        &devInfoData,
+                        hDevInfo,
+                        in devInfoData,
                         property,
                         null,
                         pBuffer,
