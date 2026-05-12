@@ -110,7 +110,7 @@ public static class Stm32PortFinder
             fixed (byte* pBuffer = buffer)
             {
                 if (PInvoke.SetupDiGetDeviceRegistryProperty(
-                        hDevInfo,
+                        (SetupDiDestroyDeviceInfoListSafeHandle)hDevInfo,
                         in devInfoData,
                         property,
                         null,
